@@ -13,6 +13,9 @@ export default function Navbar({ variant = 'student' }) {
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
+  const showStudentLinks = user?.role === 'student' || user?.role === 'both';
+  const showTutorLinks = user?.role === 'tutor' || user?.role === 'both';
+
   return (
     <nav className="navbar-custom d-flex align-items-center justify-content-between" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
       <Link to="/" className="navbar-brand-custom text-decoration-none">
@@ -28,28 +31,40 @@ export default function Navbar({ variant = 'student' }) {
           <Link to="/signup" className="btn-primary-custom ms-2">Sign Up</Link>
         </>}
 
-        {user?.role === 'student' && <>
-          <Link to="/browse" className={`nav-link-custom ${isActive('/browse')}`}>Browse Tutors</Link>
-          <Link to="/dashboard" className={`nav-link-custom ${isActive('/dashboard')}`}>Dashboard</Link>
-          <Link to="/messages" className={`nav-link-custom ${isActive('/messages')}`}>Messages</Link>
-          <Link to="/sessions" className={`nav-link-custom ${isActive('/sessions')}`}>My Sessions</Link>
-          <div className="nav-avatar ms-2" onClick={handleLogout} title="Logout">{user.initials}</div>
-        </>}
+        {showStudentLinks && (
+          <>
+            <Link to="/browse" className={`nav-link-custom ${isActive('/browse')}`}>Browse Tutors</Link>
+            <Link to="/dashboard" className={`nav-link-custom ${isActive('/dashboard')}`}>
+              {user?.role === 'both' ? 'Student Dashboard' : 'Dashboard'}
+            </Link>
+          </>
+        )}
 
-        {user?.role === 'tutor' && <>
-          <Link to="/browse" className={`nav-link-custom ${isActive('/browse')}`}>Browse Tutors</Link>
-          <Link to="/tutor-dashboard" className={`nav-link-custom ${isActive('/tutor-dashboard')}`}>Dashboard</Link>
-          <Link to="/messages" className={`nav-link-custom ${isActive('/messages')}`}>Messages</Link>
-          <Link to="/sessions" className={`nav-link-custom ${isActive('/sessions')}`}>My Sessions</Link>
-          <div className="nav-avatar ms-2" onClick={handleLogout} title="Logout">{user.initials}</div>
-        </>}
+        {showTutorLinks && (
+          <>
+            {user?.role === 'tutor' && (
+              <Link to="/browse" className={`nav-link-custom ${isActive('/browse')}`}>Browse Tutors</Link>
+            )}
+            <Link to="/tutor-dashboard" className={`nav-link-custom ${isActive('/tutor-dashboard')}`}>
+              {user?.role === 'both' ? 'Tutor Dashboard' : 'Dashboard'}
+            </Link>
+          </>
+        )}
+
+        {(showStudentLinks || showTutorLinks) && (
+          <>
+            <Link to="/messages" className={`nav-link-custom ${isActive('/messages')}`}>Messages</Link>
+            <Link to="/sessions" className={`nav-link-custom ${isActive('/sessions')}`}>My Sessions</Link>
+            <div className="nav-avatar ms-2" onClick={handleLogout} title="Logout">{user.initials}</div>
+          </>
+        )}
 
         {user?.role === 'admin' && <>
           <Link to="/admin/dashboard" className={`nav-link-custom ${isActive('/admin/dashboard')}`}>Dashboard</Link>
           <Link to="/admin/users" className={`nav-link-custom ${isActive('/admin/users')}`}>Users</Link>
           <Link to="/admin/verification" className={`nav-link-custom ${isActive('/admin/verification')}`}>Verification</Link>
           <Link to="/admin/reports" className={`nav-link-custom ${isActive('/admin/reports')}`}>Reports</Link>
-          <div className="nav-avatar ms-2" onClick={handleLogout} title="Logout">A</div>
+          <div className="nav-avatar ms-2" onClick={handleLogout} title="Logout">{user?.initials || 'A'}</div>
         </>}
       </div>
 
@@ -66,18 +81,20 @@ export default function Navbar({ variant = 'student' }) {
             <Link to="/login" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Log In</Link>
             <Link to="/signup" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Sign Up</Link>
           </>}
-          {user?.role === 'student' && <>
-            <Link to="/dashboard" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+          {showStudentLinks && <>
             <Link to="/browse" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Browse Tutors</Link>
+            <Link to="/dashboard" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Student Dashboard</Link>
+          </>}
+          {showTutorLinks && <>
+            <Link to="/tutor-dashboard" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Tutor Dashboard</Link>
+            {user?.role === 'tutor' && (
+              <Link to="/browse" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Browse Tutors</Link>
+            )}
+          </>}
+          {(showStudentLinks || showTutorLinks) && user?.role !== 'admin' && <>
             <Link to="/messages" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Messages</Link>
             <Link to="/sessions" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>My Sessions</Link>
-            <button className="btn btn-link nav-link-custom py-2 d-block" onClick={handleLogout}>Logout</button>
-          </>}
-          {user?.role === 'tutor' && <>
-            <Link to="/tutor-dashboard" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-            <Link to="/browse" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Browse Tutors</Link>
-            <Link to="/messages" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Messages</Link>
-            <button className="btn btn-link nav-link-custom py-2 d-block" onClick={handleLogout}>Logout</button>
+            <button type="button" className="btn btn-link nav-link-custom py-2 d-block" onClick={handleLogout}>Logout</button>
           </>}
           {user?.role === 'admin' && <>
             <Link to="/admin/dashboard" className="d-block nav-link-custom py-2" onClick={() => setMenuOpen(false)}>Dashboard</Link>

@@ -61,13 +61,23 @@ async function listMine(req, res, next) {
       .populate('tutorId', 'name initials email')
       .lean();
     return res.json({
-      sessions: sessions.map((x) => ({
-        ...x,
-        id: x._id.toString(),
-        _id: undefined,
-        requesterId: x.requesterId?._id?.toString() || x.requesterId,
-        tutorId: x.tutorId?._id?.toString() || x.tutorId,
-      })),
+      sessions: sessions.map((x) => {
+        const reqPop = x.requesterId && typeof x.requesterId === 'object' ? x.requesterId : null;
+        const tutPop = x.tutorId && typeof x.tutorId === 'object' ? x.tutorId : null;
+        return {
+          ...x,
+          id: x._id.toString(),
+          _id: undefined,
+          requesterId: reqPop?._id?.toString() || x.requesterId,
+          tutorId: tutPop?._id?.toString() || x.tutorId,
+          requesterSummary: reqPop
+            ? { id: reqPop._id.toString(), name: reqPop.name, initials: reqPop.initials }
+            : undefined,
+          tutorSummary: tutPop
+            ? { id: tutPop._id.toString(), name: tutPop.name, initials: tutPop.initials }
+            : undefined,
+        };
+      }),
     });
   } catch (e) {
     next(e);

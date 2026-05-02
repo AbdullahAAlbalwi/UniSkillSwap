@@ -30,10 +30,26 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminVerification from './pages/admin/AdminVerification';
 import AdminReports from './pages/admin/AdminReports';
 
+function canAccessRole(userRole, allowedRoles) {
+  if (!allowedRoles || !allowedRoles.length) return true;
+  return allowedRoles.some((ar) => {
+    if (ar === 'student') return userRole === 'student' || userRole === 'both';
+    if (ar === 'tutor') return userRole === 'tutor' || userRole === 'both';
+    return userRole === ar;
+  });
+}
+
 function ProtectedRoute({ children, allowedRoles }) {
-  const { user } = useAuth();
+  const { user, booting } = useAuth();
+  if (booting) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
+        <div className="spinner-border text-primary" role="status" />
+      </div>
+    );
+  }
   if (!user) return <Navigate to="/login" />;
-  if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to="/" />;
+  if (!canAccessRole(user.role, allowedRoles)) return <Navigate to="/" />;
   return children;
 }
 
@@ -53,7 +69,7 @@ function AppRoutes() {
       <Route path="/browse" element={<BrowseTutors />} />
       <Route path="/tutor/:id" element={<TutorProfile />} />
       <Route path="/post-request" element={<ProtectedRoute allowedRoles={['student']}><PostRequest /></ProtectedRoute>} />
-      <Route path="/sessions" element={<ProtectedRoute allowedRoles={['student']}><MySessions /></ProtectedRoute>} />
+      <Route path="/sessions" element={<ProtectedRoute allowedRoles={['student', 'tutor']}><MySessions /></ProtectedRoute>} />
       <Route path="/messages" element={<ProtectedRoute allowedRoles={['student', 'tutor']}><Messages /></ProtectedRoute>} />
 
       {/* Tutor routes */}

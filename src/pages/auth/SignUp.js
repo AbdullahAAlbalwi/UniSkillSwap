@@ -14,22 +14,31 @@ export default function SignUp() {
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = 'Full name is required';
-    if (!form.email.includes('@') || !form.email.includes('.edu')) e.email = 'Must be a valid .edu email address';
+    if (!form.email.includes('@')) e.email = 'Must be a valid email address';
     if (form.password.length < 8) e.password = 'Password must be at least 8 characters';
     if (!/\d/.test(form.password)) e.password = 'Password must contain at least one number';
     if (form.password !== form.confirm) e.confirm = 'Passwords do not match';
     return e;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
     setLoading(true);
-    setTimeout(() => {
-      const role = register(form.name, form.email, form.role);
-      navigate(role === 'tutor' ? '/tutor-dashboard' : '/dashboard');
-    }, 800);
+    setErrors({});
+    try {
+      const u = await register(form.name, form.email, form.password, form.role);
+      navigate(u.role === 'tutor' ? '/tutor-dashboard' : '/dashboard');
+    } catch (err) {
+      const msg = err.body?.error || err.message || 'Registration failed';
+      setErrors({ form: msg });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); setErrors(e => ({ ...e, [k]: '' })); };
@@ -49,9 +58,9 @@ export default function SignUp() {
               {errors.name && <div style={{ color: 'var(--danger)', fontSize: '0.8rem', marginTop: 4 }}>{errors.name}</div>}
             </div>
             <div className="mb-3">
-              <label className="form-label-custom">University Email</label>
-              <input className="form-control-custom" placeholder="john.doe@university.edu" value={form.email} onChange={e => set('email', e.target.value)} />
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: 4 }}>Must be a valid .edu email address</div>
+              <label className="form-label-custom">Email</label>
+              <input className="form-control-custom" placeholder="you@university.edu" value={form.email} onChange={e => set('email', e.target.value)} />
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: 4 }}>Use a real address for production; demo seed accounts use @uniskillswap.local</div>
               {errors.email && <div style={{ color: 'var(--danger)', fontSize: '0.8rem' }}>{errors.email}</div>}
             </div>
             <div className="mb-3">
@@ -77,6 +86,10 @@ export default function SignUp() {
                 </button>
               ))}
             </div>
+
+            {errors.form && (
+              <div style={{ background: '#f8d7da', color: '#721c24', borderRadius: 8, padding: '0.6rem 1rem', fontSize: '0.88rem', marginBottom: '1rem' }}>{errors.form}</div>
+            )}
 
             <button type="submit" className="btn-primary-custom w-100 py-3" disabled={loading} style={{ fontSize: '1rem' }}>
               {loading ? <span className="spinner-border spinner-border-sm me-2" /> : null}

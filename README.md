@@ -80,7 +80,19 @@ npm install
 npm start
 ```
 
-The app opens at **http://localhost:3000** (mock UI data unless you wire it to the API).
+The app opens at **http://localhost:3000**.
+
+### Full stack demo (MongoDB + API + React)
+
+Use this flow to verify Milestone 5 integration end-to-end before submission.
+
+1. **Start MongoDB** (local service or Atlas) and confirm `MONGODB_URI` in `server/.env`.
+2. **API** — from `server/`: `npm install`, `npm run seed`, `npm start`. Wait for `UniSkillSwap API listening on http://localhost:5000`.
+3. **Health** — `GET http://localhost:5000/api/health` should return `{ "ok": true, ... }`.
+4. **React** — from the repo root: `npm install`, `npm start`. The UI talks to the API at `REACT_APP_API_URL` (see `.env.development`, default `http://localhost:5000/api`).
+5. **Sign in** — use seed accounts (below) on **Log In** / **Admin login**; browse tutors loads from `GET /api/tutors`; booking and **My Sessions** use authenticated API calls.
+
+`CLIENT_ORIGIN` in `server/.env` must allow the CRA origin (default `http://localhost:3000`) so the browser can call the API.
 
 ### Back end (Express API)
 
@@ -106,6 +118,8 @@ Health check: `GET http://localhost:5000/api/health`
 | `JWT_EXPIRES_IN` | No | JWT lifetime (default `7d`). |
 | `CLIENT_ORIGIN` | No | CORS origin for the React app (default `http://localhost:3000`). |
 | `SEED_DEMO_PASSWORD` | No | Password for all accounts created by `npm run seed` (default `DemoPass123!`). |
+
+**Front end (`REACT_APP_API_URL`)** — optional; defaults to `http://localhost:5000/api`. Set in `.env.development` or `.env.local` if the API runs on another host or port.
 
 Never commit `.env` or real Atlas credentials; `.gitignore` already excludes `.env`.
 
