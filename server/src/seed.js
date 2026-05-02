@@ -19,24 +19,26 @@ async function seed() {
 
   const hash = await bcrypt.hash(demoPassword, 10);
 
+  const adminName = 'ياسر الحسن';
   const admin = await User.create({
-    name: 'Admin User',
+    name: adminName,
     email: 'admin@uniskillswap.local',
     passwordHash: hash,
     role: 'admin',
-    initials: 'AU',
+    initials: initialsFromName(adminName),
     verified: true,
   });
 
+  const tutorName = 'نورة العتيبي';
   const tutor = await User.create({
-    name: 'Sarah Chen',
+    name: tutorName,
     email: 'tutor@uniskillswap.local',
     passwordHash: hash,
     role: 'tutor',
-    initials: initialsFromName('Sarah Chen'),
-    bio: 'Mathematics tutor — Calc I–III and linear algebra.',
-    subject: 'Calculus & Linear Algebra',
-    skills: ['Math', 'Calculus', 'Linear Algebra'],
+    initials: initialsFromName(tutorName),
+    bio: 'مدرسة رياضيات — تفاضل وتكامل ١–٣ وجبر خطي.',
+    subject: 'التفاضل والتكامل والجبر الخطي',
+    skills: ['رياضيات', 'تفاضل وتكامل', 'جبر خطي'],
     courses: ['MATH 101', 'MATH 201'],
     verified: true,
     rating: 4.8,
@@ -50,34 +52,35 @@ async function seed() {
     sessionModes: ['Online', 'On-Campus'],
   });
 
+  const studentName = 'خالد الدوسري';
   const student = await User.create({
-    name: 'Alex Requester',
+    name: studentName,
     email: 'student@uniskillswap.local',
     passwordHash: hash,
     role: 'requester',
-    initials: 'AR',
+    initials: initialsFromName(studentName),
     verified: true,
   });
 
   await Offer.create([
     {
       tutorId: tutor._id,
-      title: 'Calculus II — Integration',
-      subject: 'Calculus II',
-      description: 'Techniques of integration and applications.',
+      title: 'تفاضل وتكامل ٢ — التكامل',
+      subject: 'تفاضل وتكامل ٢',
+      description: 'تقنيات التكامل والتطبيقات.',
       level: 'Intermediate',
-      tags: ['Math', 'Calculus'],
+      tags: ['رياضيات', 'تفاضل وتكامل'],
       mode: 'Both',
       active: true,
       status: 'active',
     },
     {
       tutorId: tutor._id,
-      title: 'Linear Algebra fundamentals',
-      subject: 'Linear Algebra',
-      description: 'Vectors, matrices, eigenvalues.',
+      title: 'أساسيات الجبر الخطي',
+      subject: 'الجبر الخطي',
+      description: 'متجهات، مصفوفات، قيم ذاتية.',
       level: 'Beginner',
-      tags: ['Math'],
+      tags: ['رياضيات'],
       mode: 'Online',
       active: true,
       status: 'active',
